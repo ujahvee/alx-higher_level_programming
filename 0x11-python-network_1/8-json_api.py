@@ -1,23 +1,24 @@
 #!/usr/bin/python3
+"""Sends a request to the URL and displays the body of the response."""
 
-'''
-takes in a letter and sends a POST request
-to http://0.0.0.0:5000/search_user with the letter as a parameter.
-'''
-
-import requests
-from sys import argv
 
 if __name__ == '__main__':
-    query = {'q': '' if len(argv) == 1 else argv[1]}
-    req = requests.post('http://0.0.0.0:5000/search_user', data=query)
-    try:
-        dct = req.json()
-        id = dct.get('id')
-        name = dct.get('name')
-        if len(dct) == 0 or not id or not name:
-            print("No result")
+    from requests import post
+    from sys import argv
+
+    URL = 'http://0.0.0.0:5000/search_user'
+    data = {'q': argv[1] if len(argv) >= 2 else ""}
+    response = post(URL, data)
+
+    type_res = response.headers['content-type']
+
+    if type_res == 'application/json':
+        result = response.json()
+        _id = result.get('id')
+        name = result.get('name')
+        if (result != {} and _id and name):
+            print("[{}] {}".format(_id, name))
         else:
-            print(f'[{dct.get("id")}] {dct.get("name")}')
-    except:
+            print('No result')
+    else:
         print('Not a valid JSON')
